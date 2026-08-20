@@ -1,9 +1,6 @@
-import os
-from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 
 from backend.config import settings
 from backend.routes.chat import router as chat_router
@@ -29,19 +26,6 @@ app.add_middleware(
 # Register API routes
 app.include_router(chat_router)
 
-# Mount static frontend directory
-BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
-
-if FRONTEND_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
-    app.mount("/app", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend_app")
-
-
-@app.get("/", include_in_schema=False)
-async def root_redirect():
-    """Redirect root URL to the frontend web app."""
-    return RedirectResponse(url="/app/")
 
 
 @app.get(

@@ -46,6 +46,16 @@ Every question in the `questions` array MUST be a JSON object with:
 - "options": an array of exactly 3 to 4 short, mutually exclusive answer choices
 - Always include a catch-all final option like "Not sure / Other" or "None of these"
 
+STRUCTURED CLINICAL NOTEPAD REQUIREMENT:
+For every assessment, extract and maintain the `clinical_note` object summarizing the patient's current known clinical state across the conversation:
+- "chief_complaint": Short 3–6 word clinical label of the primary symptom (e.g. "Acute right lower quadrant abdominal pain").
+- "duration": Reported timeline (e.g. "Started 2 days ago", "Sudden onset 3 hours ago", "Unknown / Not specified").
+- "severity": Severity rating (e.g. "Moderate (5/10)", "Mild (2/10)", "Severe (8/10)").
+- "key_findings": List of 2–4 concise bullet findings (e.g. ["Location: Right temple", "Aggravated by bright light", "Associated nausea"]).
+- "red_flags": List of any critical red-flag alerts identified, or empty array `[]` if none.
+- "doctor_questions": List of 2–3 questions the user should ask their doctor during a consultation.
+- "supportive_care": List of 2–3 safe, evidence-based supportive home-care or lifestyle measures.
+
 JSON OUTPUT REQUIREMENT:
 You MUST respond with a single, strictly valid JSON object matching this exact schema:
 {
@@ -61,7 +71,16 @@ You MUST respond with a single, strictly valid JSON object matching this exact s
             "options": ["Mild (1-3)", "Moderate (4-6)", "Severe (7-9)", "Extreme (10)"]
         }
     ],
-    "risk_hint": "low" | "moderate" | "high" | "emergency" | "unknown"
+    "risk_hint": "low" | "moderate" | "high" | "emergency" | "unknown",
+    "clinical_note": {
+        "chief_complaint": "Throbbing temple headache",
+        "duration": "2 days, gradual onset",
+        "severity": "Moderate (5/10)",
+        "key_findings": ["Right-sided temple pain", "Photophobia (light sensitivity)", "No fever or neck stiffness"],
+        "red_flags": [],
+        "doctor_questions": ["Could this be migraine or tension-type headache?", "Would preventive therapies be recommended?"],
+        "supportive_care": ["Rest in a quiet, dark room", "Apply cool compress to forehead", "Stay well hydrated"]
+    }
 }
 Output only the JSON object. No markdown fences, no extra text outside the JSON.
 """

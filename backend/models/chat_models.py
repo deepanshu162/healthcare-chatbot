@@ -34,6 +34,17 @@ class FollowUpQuestion(BaseModel):
         return cleaned[:4]
 
 
+class ClinicalNoteSchema(BaseModel):
+    """Structured clinical notepad summary representation."""
+    chief_complaint: Optional[str] = Field(default=None, description="Primary symptom or stated health concern.")
+    duration: Optional[str] = Field(default=None, description="Duration or onset timeline if known.")
+    severity: Optional[str] = Field(default=None, description="Severity assessment (e.g. Mild 2/10, Moderate 6/10, Severe).")
+    key_findings: List[str] = Field(default_factory=list, description="Extracted clinical details, location, and associated symptoms.")
+    red_flags: List[str] = Field(default_factory=list, description="Identified red-flag symptoms or safety alerts.")
+    doctor_questions: List[str] = Field(default_factory=list, description="Recommended questions to ask during a doctor's visit.")
+    supportive_care: List[str] = Field(default_factory=list, description="Safe home supportive and self-care measures.")
+
+
 class StructuredAiOutput(BaseModel):
     """Pydantic model representing structured JSON output from Gemini AI."""
     response_type: ResponseType = Field(
@@ -51,6 +62,10 @@ class StructuredAiOutput(BaseModel):
     risk_hint: str = Field(
         default="unknown",
         description="Estimated risk level: low, moderate, high, emergency, or unknown."
+    )
+    clinical_note: Optional[ClinicalNoteSchema] = Field(
+        default=None,
+        description="Structured clinical symptom note for the live notepad panel."
     )
 
     @field_validator("questions", mode="before")
@@ -115,4 +130,8 @@ class ChatResponse(BaseModel):
     risk_hint: str = Field(
         default="unknown",
         description="Risk guidance hint."
+    )
+    clinical_note: Optional[ClinicalNoteSchema] = Field(
+        default=None,
+        description="Structured clinical symptom note for the live notepad panel."
     )

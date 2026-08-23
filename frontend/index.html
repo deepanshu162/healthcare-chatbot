@@ -3,180 +3,580 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HealthAI v0.2 — Intelligent Symptom Assessment</title>
-  <meta name="description" content="HealthAI is an AI-powered healthcare guidance and symptom assessment assistant providing structured follow-up evaluations and evidence-based guidance.">
+  <title>HealthAI v0.3 — Dual-Pane Clinical Assessment &amp; Symptom Notepad</title>
+  <meta name="description" content="HealthAI is an AI-powered healthcare guidance and symptom assessment assistant featuring dual-pane interactive chat and live structured clinical symptom notepad.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
+  <div class="app-layout" id="appLayout">
     
-    <!-- Top Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="brand-logo">
-          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            <path d="M12 5v14"/>
-            <path d="M5 12h14"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title-row">
-            <h1 class="brand-title">HealthAI</h1>
-            <span class="version-badge">v0.2</span>
-          </div>
-          <p class="brand-subtitle">AI Healthcare Guidance &amp; Symptom Assessment</p>
-        </div>
-      </div>
-
-      <div class="header-right">
-        <div class="server-status" id="serverStatus">
-          <span class="status-dot pulse"></span>
-          <span class="status-text" id="statusText">Checking Backend...</span>
-        </div>
-        <button class="icon-button" id="infoButton" title="About & Medical Disclaimer" aria-label="About HealthAI">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 16v-4"/>
-            <path d="M12 8h.01"/>
-          </svg>
-        </button>
-        <button class="icon-button" id="clearChatButton" title="Clear Conversation" aria-label="Clear Conversation">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            <line x1="10" y1="11" x2="10" y2="17"/>
-            <line x1="14" y1="11" x2="14" y2="17"/>
-          </svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- Emergency Alert Banner -->
-    <div class="emergency-banner" id="emergencyBanner">
-      <div class="emergency-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </div>
-      <div class="emergency-text">
-        <strong>Medical Emergency?</strong> If you have severe chest pain, shortness of breath, sudden numbness, or acute red-flag symptoms, contact your local emergency services or seek immediate urgent medical care.
-      </div>
-    </div>
-
-    <!-- Main Chat Workspace -->
-    <main class="chat-main" id="chatMain">
-      <div class="messages-container" id="messagesContainer">
-        
-        <!-- Welcome Hero State -->
-        <div class="welcome-card" id="welcomeCard">
-          <div class="welcome-icon-wrap">
-            <svg class="welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+    <!-- Collapsible History Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="brand-logo-small">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
             </svg>
           </div>
-          <h2 class="welcome-title">Welcome to HealthAI v0.2</h2>
-          <p class="welcome-description">
-            Your intelligent symptom assessment assistant. Ask about symptoms, and HealthAI will ask relevant follow-up questions to understand your situation before providing supportive guidance.
-          </p>
+          <span class="sidebar-title">Health History</span>
+        </div>
+        <button class="icon-button small close-sidebar-btn" id="closeSidebarBtn" title="Close Sidebar" aria-label="Close Sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
 
-          <div class="welcome-disclaimer-pill">
+      <!-- New Assessment Action Button -->
+      <div class="sidebar-action">
+        <button class="new-chat-btn" id="newChatBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>New Assessment</span>
+        </button>
+      </div>
+
+      <!-- Past Assessment Conversations List -->
+      <div class="sidebar-history" id="sidebarHistory">
+        <div class="history-label-row">
+          <span class="history-label">Recent Assessments</span>
+          <span class="history-count" id="historyCount">0</span>
+        </div>
+        <div class="conversation-list" id="conversationList">
+          <div class="history-empty" id="historyEmpty">
+            <p>No saved assessments yet.</p>
+            <span class="subtext">Your consultations will appear here automatically.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Account Section -->
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="user-info-card logged-out" id="userLoggedOut">
+          <div class="guest-prompt">
+            <span class="guest-title">Cloud Storage</span>
+            <span class="guest-subtitle">Sign in to save and access assessments anywhere.</span>
+          </div>
+          <button class="auth-btn-primary" id="openAuthBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
             </svg>
-            <span>Educational symptom assessment &bull; Not a medical diagnosis</span>
+            <span>Sign In / Register</span>
+          </button>
+        </div>
+
+        <div class="user-info-card logged-in" id="userLoggedIn" style="display: none;">
+          <div class="user-profile-row">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <div class="user-meta">
+              <span class="user-name" id="userName">User</span>
+              <span class="user-email" id="userEmail">user@example.com</span>
+            </div>
+          </div>
+          <button class="logout-btn" id="logoutBtn" title="Log Out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop for Mobile Screens -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+      
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="icon-button toggle-sidebar-btn" id="toggleSidebarBtn" title="Toggle Assessment History" aria-label="Toggle Assessment History">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          <div class="brand-logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5v14"/>
+              <path d="M5 12h14"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title-row">
+              <h1 class="brand-title">HealthAI</h1>
+              <span class="version-badge">v0.3</span>
+            </div>
+            <p class="brand-subtitle">AI Healthcare Guidance &amp; Symptom Notepad</p>
+          </div>
+        </div>
+
+        <!-- Mobile View Mode Switcher -->
+        <div class="mobile-view-tabs" id="mobileViewTabs">
+          <button class="mobile-tab-btn active" id="tabViewChat" title="Chat Assessment">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>Consultation</span>
+          </button>
+          <button class="mobile-tab-btn" id="tabViewNotepad" title="Structured Clinical Note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <span>Clinical Note</span>
+          </button>
+        </div>
+
+        <div class="header-right">
+          <div class="server-status" id="serverStatus">
+            <span class="status-dot pulse"></span>
+            <span class="status-text" id="statusText">Checking Backend...</span>
+          </div>
+          
+          <button class="icon-button user-header-btn" id="userHeaderBtn" title="Account" aria-label="Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </button>
+
+          <button class="icon-button" id="infoButton" title="About &amp; Medical Disclaimer" aria-label="About HealthAI">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4"/>
+              <path d="M12 8h.01"/>
+            </svg>
+          </button>
+          
+          <button class="icon-button" id="clearChatButton" title="Start Fresh Assessment" aria-label="Start Fresh Assessment">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Emergency Alert Banner -->
+      <div class="emergency-banner" id="emergencyBanner">
+        <div class="emergency-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="emergency-text">
+          <strong>Medical Emergency?</strong> If you have severe chest pain, shortness of breath, sudden numbness, or acute red-flag symptoms, contact your local emergency services or seek immediate urgent medical care.
+        </div>
+      </div>
+
+      <!-- DUAL-PANE WORKSPACE: Left = Chat Section, Right = Clinical Notepad -->
+      <div class="workspace-dual-pane" id="workspaceDualPane">
+        
+        <!-- ================= SECTION 1: CHAT CONSULTATION PANE ================= -->
+        <section class="pane-chat" id="paneChat">
+          <div class="pane-header-bar">
+            <div class="pane-title-group">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <h2>Consultation Dialogue</h2>
+            </div>
+            <span class="pane-badge">Interactive AI</span>
           </div>
 
-          <div class="suggestion-section">
-            <span class="suggestion-label">Suggested symptoms to assess:</span>
-            <div class="suggestion-chips" id="suggestionChips">
-              <button class="chip" data-prompt="I have stomach pain.">
-                🩺 Stomach pain assessment
+          <main class="chat-main" id="chatMain">
+            <div class="messages-container" id="messagesContainer">
+              
+              <!-- Welcome Hero State -->
+              <div class="welcome-card" id="welcomeCard">
+                <div class="welcome-icon-wrap">
+                  <svg class="welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                </div>
+                <h2 class="welcome-title">Welcome to HealthAI v0.3</h2>
+                <p class="welcome-description">
+                  Describe symptoms to begin an interactive evaluation. HealthAI will ask follow-up questions and generate a structured <strong>Clinical Assessment Notepad</strong> in real time on the right.
+                </p>
+
+                <div class="welcome-disclaimer-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span>Educational symptom assessment &bull; Not a medical diagnosis</span>
+                </div>
+
+                <div class="suggestion-section">
+                  <span class="suggestion-label">Suggested symptoms to evaluate:</span>
+                  <div class="suggestion-chips" id="suggestionChips">
+                    <button class="chip" data-prompt="I have stomach pain on my lower right side.">
+                      🩺 Stomach pain evaluation
+                    </button>
+                    <button class="chip" data-prompt="I have had a throbbing temple headache for 2 days, moderate severity.">
+                      🤕 Headache assessment
+                    </button>
+                    <button class="chip" data-prompt="I have a sore throat, mild fever, and dry cough since yesterday.">
+                      🍵 Sore throat &amp; fever check
+                    </button>
+                    <button class="chip" data-prompt="What evidence-based lifestyle changes help improve natural sleep quality?">
+                      😴 Improving sleep hygiene
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat messages dynamically injected here -->
+
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator-wrapper" id="typingIndicator" style="display: none;">
+              <div class="ai-avatar small">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+              </div>
+              <div class="typing-bubble">
+                <span class="typing-label">HealthAI is assessing symptoms &amp; structuring note</span>
+                <div class="typing-dots">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+              </div>
+            </div>
+          </main>
+
+          <!-- Input Section -->
+          <footer class="app-footer">
+            <form class="chat-input-form" id="chatForm">
+              <div class="input-container">
+                <textarea
+                  id="messageInput"
+                  class="chat-textarea"
+                  placeholder="Type health inquiry or answer follow-up questions... (e.g. 'Started 2 days ago, mild 4/10')"
+                  rows="1"
+                  maxlength="3000"
+                  required
+                  aria-label="Health message input"
+                ></textarea>
+                
+                <div class="input-actions">
+                  <div class="char-counter" id="charCounter">0/3000</div>
+                  <button type="submit" class="send-button" id="sendButton" aria-label="Send message">
+                    <span class="send-text">Send</span>
+                    <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"/>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </footer>
+        </section>
+
+        <!-- ================= SECTION 2: STRUCTURED CLINICAL NOTEPAD PANE ================= -->
+        <section class="pane-notepad" id="paneNotepad">
+          
+          <div class="notepad-header">
+            <div class="notepad-title-group">
+              <div class="notepad-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <div class="notepad-title-meta">
+                <h2>Clinical Assessment Notepad</h2>
+                <span class="notepad-sync-pill" id="notepadSyncPill">
+                  <span class="sync-dot"></span>
+                  <span id="notepadSyncStatus">Awaiting Assessment</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="notepad-actions">
+              <button class="notepad-tool-btn" id="copyNoteBtn" title="Copy structured note to clipboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span>Copy Note</span>
               </button>
-              <button class="chip" data-prompt="I have had a throbbing headache since yesterday.">
-                🤕 Headache follow-up evaluation
-              </button>
-              <button class="chip" data-prompt="I have a sore throat and mild fever.">
-                🍵 Sore throat & fever assessment
-              </button>
-              <button class="chip" data-prompt="What evidence-based lifestyle changes help improve natural sleep quality?">
-                😴 Improving sleep hygiene
+              <button class="notepad-tool-btn" id="printNoteBtn" title="Print or save as PDF">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"/>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                <span>Export PDF</span>
               </button>
             </div>
           </div>
-        </div>
 
-        <!-- Chat messages dynamically injected here -->
+          <div class="notepad-body" id="notepadBody">
+            
+            <!-- Notepad Empty Placeholder -->
+            <div class="notepad-empty-state" id="notepadEmptyState">
+              <div class="empty-sheet-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <h3>No Active Assessment Note</h3>
+              <p>Type a symptom in the consultation dialogue or choose a suggestion chip to generate a live structured clinical note.</p>
+              <div class="notepad-feature-list">
+                <div class="feature-item">
+                  <span class="f-dot">✓</span>
+                  <span>Extracts Chief Complaint &amp; Timeline</span>
+                </div>
+                <div class="feature-item">
+                  <span class="f-dot">✓</span>
+                  <span>Calculates Severity &amp; Risk Triage</span>
+                </div>
+                <div class="feature-item">
+                  <span class="f-dot">✓</span>
+                  <span>Structures Questions to Ask Your Doctor</span>
+                </div>
+                <div class="feature-item">
+                  <span class="f-dot">✓</span>
+                  <span>Recommends Evidence-Based Supportive Care</span>
+                </div>
+              </div>
+            </div>
 
-      </div>
+            <!-- Structured Clinical Sheet (Live Rendered) -->
+            <div class="clinical-sheet" id="clinicalSheet" style="display: none;">
+              
+              <!-- Session Sheet Header Banner -->
+              <div class="sheet-meta-card">
+                <div class="sheet-id-col">
+                  <span class="meta-label">SESSION ID</span>
+                  <span class="meta-val monospace" id="sheetSessionId">conv_default</span>
+                </div>
+                <div class="sheet-date-col">
+                  <span class="meta-label">RECORDED AT</span>
+                  <span class="meta-val" id="sheetTimestamp">Today, --:--</span>
+                </div>
+                <div class="sheet-risk-col">
+                  <span class="meta-label">TRIAGE RISK LEVEL</span>
+                  <span class="risk-badge-large unknown" id="sheetRiskBadge">Unknown</span>
+                </div>
+              </div>
 
-      <!-- Typing Indicator -->
-      <div class="typing-indicator-wrapper" id="typingIndicator" style="display: none;">
-        <div class="ai-avatar small">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-          </svg>
-        </div>
-        <div class="typing-bubble">
-          <span class="typing-label">HealthAI is assessing symptoms</span>
-          <div class="typing-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+              <!-- Section 1: Chief Complaint & Vitals Summary -->
+              <div class="sheet-card">
+                <div class="sheet-card-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                  <h4>1. Chief Complaint &amp; Timeline</h4>
+                </div>
+                <div class="sheet-card-body">
+                  <div class="chief-complaint-box">
+                    <span class="cc-label">Primary Stated Concern:</span>
+                    <p class="cc-text" id="sheetChiefComplaint">Evaluating symptom inquiry...</p>
+                  </div>
+                  <div class="sheet-grid-2">
+                    <div class="metric-pill">
+                      <span class="metric-label">Reported Duration:</span>
+                      <span class="metric-value" id="sheetDuration">Not specified yet</span>
+                    </div>
+                    <div class="metric-pill">
+                      <span class="metric-label">Assessed Severity:</span>
+                      <span class="metric-value" id="sheetSeverity">Under assessment</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Clinical Dimensions & Key Findings -->
+              <div class="sheet-card">
+                <div class="sheet-card-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                  </svg>
+                  <h4>2. Extracted Clinical Findings &amp; Factors</h4>
+                </div>
+                <div class="sheet-card-body">
+                  <ul class="sheet-findings-list" id="sheetFindingsList">
+                    <li>Evaluating clinical dimensions...</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Section 3: Red Flag Safety Screening -->
+              <div class="sheet-card" id="sheetRedFlagCard">
+                <div class="sheet-card-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  <h4>3. Red-Flag Safety Screening</h4>
+                </div>
+                <div class="sheet-card-body">
+                  <div class="red-flag-status" id="sheetRedFlagStatus">
+                    <div class="safe-indicator">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>No acute red-flag emergencies detected in current description.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 4: Doctor Discussion Guide -->
+              <div class="sheet-card">
+                <div class="sheet-card-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                  </svg>
+                  <h4>4. Questions to Ask Your Doctor</h4>
+                </div>
+                <div class="sheet-card-body">
+                  <ul class="sheet-doctor-list" id="sheetDoctorQuestions">
+                    <li>Consult your physician regarding persistent or worsening symptoms.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Section 5: Supportive Care & Lifestyle Measures -->
+              <div class="sheet-card">
+                <div class="sheet-card-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                  <h4>5. Evidence-Based Supportive Care</h4>
+                </div>
+                <div class="sheet-card-body">
+                  <ul class="sheet-care-list" id="sheetSupportiveCare">
+                    <li>Rest and maintain adequate hydration.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Educational Disclaimer Seal -->
+              <div class="sheet-disclaimer-seal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>This structured clinical note is generated for educational symptom assessment and patient record keeping. It is not an official medical diagnosis or prescription.</span>
+              </div>
+
+            </div>
+
           </div>
-        </div>
-      </div>
-    </main>
 
-    <!-- Error Toast Notification -->
-    <div class="error-toast" id="errorToast" style="display: none;">
-      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span class="toast-message" id="toastMessage">An error occurred.</span>
-      <button class="toast-close" id="toastClose">&times;</button>
+        </section>
+
+      </div>
+
+      <!-- Error Toast Notification -->
+      <div class="error-toast" id="errorToast" style="display: none;">
+        <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span class="toast-message" id="toastMessage">An error occurred.</span>
+        <button class="toast-close" id="toastClose">&times;</button>
+      </div>
+
     </div>
 
-    <!-- Input Section -->
-    <footer class="app-footer">
-      <form class="chat-input-form" id="chatForm">
-        <div class="input-container">
-          <textarea
-            id="messageInput"
-            class="chat-textarea"
-            placeholder="Type your health inquiry or answer follow-up questions... (e.g. 'Started 2 days ago, mild 4/10')"
-            rows="1"
-            maxlength="3000"
-            required
-            aria-label="Health message input"
-          ></textarea>
-          
-          <div class="input-actions">
-            <div class="char-counter" id="charCounter">0/3000</div>
-            <button type="submit" class="send-button" id="sendButton" aria-label="Send message">
-              <span class="send-text">Send</span>
-              <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </button>
+    <!-- Auth Modal (Sign In / Register) -->
+    <div class="modal-overlay" id="authModal" style="display: none;">
+      <div class="modal-card auth-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+            <h3 id="authModalTitle">HealthAI Cloud Account</h3>
           </div>
+          <button class="modal-close-btn" id="authCloseBtn">&times;</button>
         </div>
-      </form>
-      <div class="footer-disclaimer">
-        HealthAI v0.2 provides educational symptom assessment only and is not a substitute for clinical medical diagnosis or treatment.
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabSignIn">Sign In</button>
+          <button class="auth-tab" id="tabRegister">Create Account</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="auth-alert" id="authAlert" style="display: none;"></div>
+
+          <!-- Sign In Form -->
+          <form class="auth-form" id="signInForm">
+            <div class="form-group">
+              <label for="loginEmail">Email Address</label>
+              <input type="email" id="loginEmail" placeholder="yourname@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="primary-btn full-width" id="loginSubmitBtn">
+              <span>Sign In</span>
+            </button>
+          </form>
+
+          <!-- Register Form -->
+          <form class="auth-form" id="registerForm" style="display: none;">
+            <div class="form-group">
+              <label for="regName">Full Name</label>
+              <input type="text" id="regName" placeholder="Dr. Jane Doe" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="regEmail">Email Address</label>
+              <input type="email" id="regEmail" placeholder="yourname@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="regPassword">Password (min 6 chars)</label>
+              <input type="password" id="regPassword" minlength="6" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="primary-btn full-width" id="registerSubmitBtn">
+              <span>Create Account</span>
+            </button>
+          </form>
+        </div>
       </div>
-    </footer>
+    </div>
 
     <!-- Info & Disclaimer Modal -->
     <div class="modal-overlay" id="infoModal" style="display: none;">
@@ -186,22 +586,25 @@
             <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
             </svg>
-            <h3>About HealthAI v0.2</h3>
+            <h3>About HealthAI v0.3</h3>
           </div>
           <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
         </div>
         <div class="modal-body">
-          <h4>🧠 Intelligent Follow-Up Assessment</h4>
-          <p>HealthAI v0.2 automatically detects when symptoms lack necessary details and asks 3–5 targeted follow-up questions before providing guidance.</p>
+          <h4>🗄️ Dual-Pane Clinical Notepad</h4>
+          <p>The left pane provides interactive follow-up dialogue, while the right pane automatically compiles a structured Clinical Assessment Note.</p>
 
-          <h4>💬 Multi-Turn Conversation Context</h4>
-          <p>The system retains your conversation session in memory so you can answer follow-up questions naturally without repeating yourself.</p>
+          <h4>☁️ MongoDB Cloud Persistence</h4>
+          <p>HealthAI securely stores your consultations, follow-up records, and clinical notepad sheets in MongoDB Atlas.</p>
+
+          <h4>👤 User Authentication</h4>
+          <p>Create an account to securely access your symptom assessments and clinical notepad summaries from any device.</p>
           
           <h4>🛡️ Medical Disclaimer</h4>
           <p>HealthAI is <strong>not a doctor</strong> and does not provide medical diagnoses or prescriptions. It provides educational symptom assessment and encourages professional medical consultation.</p>
           
           <h4>🚨 Emergency Prioritization</h4>
-          <p>If urgent or life-threatening symptoms are described, HealthAI immediately prioritizes emergency safety guidance rather than asking follow-up questions.</p>
+          <p>If urgent symptoms are detected, HealthAI immediately flags emergency instructions rather than asking follow-up questions.</p>
         </div>
         <div class="modal-footer">
           <button class="primary-btn" id="modalUnderstandBtn">I Understand</button>

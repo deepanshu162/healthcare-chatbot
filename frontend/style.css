@@ -93,21 +93,30 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* App Outer Layout (Sidebar + Main) */
+.app-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0b1120;
+  overflow: hidden;
+  position: relative;
 }
 
 /* App Container Layout */
 .app-container {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 100vh;
-  max-width: 1080px;
-  margin: 0 auto;
+  max-width: 100%;
   background-color: var(--bg-card);
-  box-shadow: var(--shadow-xl);
-  border-left: 1px solid var(--border-light);
-  border-right: 1px solid var(--border-light);
   overflow: hidden;
   position: relative;
+  transition: margin-left var(--transition-normal);
 }
 
 /* Header */
@@ -1303,4 +1312,1287 @@ html, body {
   color: var(--teal-600);
   font-weight: 600;
   margin-top: 0.25rem;
+}
+
+/* ==============================================================================
+   v0.3 — Collapsible Assessment History Sidebar
+   ============================================================================== */
+
+.app-sidebar {
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  transition: width var(--transition-normal), min-width var(--transition-normal), max-width var(--transition-normal), opacity var(--transition-normal), visibility var(--transition-normal);
+  z-index: 40;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Collapsed state on desktop */
+.app-layout.sidebar-closed .app-sidebar {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  border-right: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sidebar-header,
+.sidebar-action,
+.sidebar-history,
+.sidebar-user {
+  width: 320px;
+  min-width: 320px;
+  box-sizing: border-box;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-logo-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary-500), var(--teal-500));
+  border-radius: var(--radius-sm);
+  color: #fff;
+}
+
+.brand-logo-small svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+}
+
+.close-sidebar-btn {
+  color: #94a3b8;
+  display: none;
+}
+
+.close-sidebar-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar Action (+ New Chat) */
+.sidebar-action {
+  padding: 1rem 1.25rem 0.75rem 1.25rem;
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--primary-600), var(--teal-600));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.new-chat-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.new-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+}
+
+.new-chat-btn:active {
+  transform: translateY(0);
+}
+
+/* Sidebar History List */
+.sidebar-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar-history::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-history::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+
+.history-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem 0.35rem 0.6rem;
+}
+
+.history-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.history-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.history-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.history-empty .subtext {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+/* Conversation Item Card */
+.conversation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  text-decoration: none;
+  color: #cbd5e1;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.conversation-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+.conversation-item.active {
+  background: rgba(2, 132, 199, 0.18);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  font-weight: 600;
+}
+
+.conv-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow: hidden;
+  flex: 1;
+  padding-right: 0.5rem;
+}
+
+.conv-title {
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.conv-risk-badge {
+  font-size: 0.68rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.conv-risk-badge.emergency {
+  background: rgba(225, 29, 72, 0.2);
+  color: #fb7185;
+}
+
+.conv-risk-badge.high {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+}
+
+.conv-risk-badge.moderate {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.conv-risk-badge.low {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.conv-risk-badge.unknown {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.conv-delete-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.conversation-item:hover .conv-delete-btn {
+  opacity: 1;
+}
+
+.conv-delete-btn:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.15);
+}
+
+.conv-delete-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Sidebar User Section */
+.sidebar-user {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.user-info-card.logged-out {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.guest-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.guest-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.guest-subtitle {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.auth-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.auth-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.auth-btn-primary svg {
+  width: 16px;
+  height: 16px;
+}
+
+.user-info-card.logged-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.user-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: linear-gradient(135deg, var(--teal-500), var(--primary-600));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.logout-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Sidebar Backdrop (Mobile) */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 35;
+}
+
+/* ==============================================================================
+   Auth Modal Styling
+   ============================================================================== */
+
+.auth-modal-card {
+  max-width: 420px;
+  width: 90%;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--slate-50);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--slate-500);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 2px solid transparent;
+}
+
+.auth-tab:hover {
+  color: var(--primary-600);
+}
+
+.auth-tab.active {
+  color: var(--primary-600);
+  background: #ffffff;
+  border-bottom-color: var(--primary-600);
+}
+
+.auth-alert {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.auth-alert.error {
+  background: var(--rose-50);
+  color: var(--rose-700);
+  border: 1px solid var(--rose-100);
+}
+
+.auth-alert.success {
+  background: var(--teal-50);
+  color: var(--teal-700);
+  border: 1px solid var(--teal-100);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.form-group input {
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ==============================================================================
+   v0.3 — Dual-Pane Workspace (Chat Consultation + Clinical Symptom Notepad)
+   ============================================================================== */
+
+.workspace-dual-pane {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - 75px);
+  position: relative;
+  background: #f1f5f9;
+}
+
+/* LEFT PANE: Chat Consultation */
+.pane-chat {
+  flex: 1.15;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-right: 1px solid var(--border-light);
+  position: relative;
+}
+
+.pane-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem;
+  background: #fafafa;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pane-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--slate-700);
+}
+
+.pane-title-group svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-600);
+}
+
+.pane-title-group h2 {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  margin: 0;
+}
+
+.pane-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  background: var(--primary-50);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--primary-100);
+}
+
+/* RIGHT PANE: Structured Clinical Notepad */
+.pane-notepad {
+  flex: 0.95;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.notepad-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+  z-index: 10;
+}
+
+.notepad-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notepad-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--teal-50), var(--primary-50));
+  border: 1px solid var(--teal-100);
+  border-radius: var(--radius-sm);
+  color: var(--teal-600);
+}
+
+.notepad-icon-wrap svg {
+  width: 18px;
+  height: 18px;
+}
+
+.notepad-title-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.notepad-title-meta h2 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  margin: 0;
+}
+
+.notepad-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--teal-700);
+}
+
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--teal-500);
+  border-radius: 50%;
+  animation: pulseSync 2s infinite ease-in-out;
+}
+
+@keyframes pulseSync {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.notepad-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notepad-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: #ffffff;
+  color: var(--slate-700);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+}
+
+.notepad-tool-btn:hover {
+  background: var(--slate-50);
+  color: var(--primary-600);
+  border-color: var(--primary-200);
+  transform: translateY(-1px);
+}
+
+.notepad-tool-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Notepad Body & Sheet Container */
+.notepad-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notepad-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notepad-body::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 999px;
+}
+
+/* Notepad Empty State */
+.notepad-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #ffffff;
+  border: 1.5px dashed var(--border-light);
+  border-radius: var(--radius-md);
+  margin: auto 0;
+}
+
+.empty-sheet-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-400);
+  margin-bottom: 1rem;
+}
+
+.empty-sheet-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.notepad-empty-state h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--slate-700);
+  margin-bottom: 0.4rem;
+}
+
+.notepad-empty-state p {
+  font-size: 0.85rem;
+  color: var(--slate-500);
+  max-width: 320px;
+  line-height: 1.45;
+  margin-bottom: 1.25rem;
+}
+
+.notepad-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: left;
+  background: var(--slate-50);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--slate-200);
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--slate-700);
+}
+
+.f-dot {
+  color: var(--teal-600);
+  font-weight: 700;
+}
+
+/* ==============================================================================
+   Clinical Sheet Styling (Electronic Health Record Format)
+   ============================================================================== */
+
+.clinical-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Meta Bar Card */
+.sheet-meta-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  gap: 0.5rem;
+}
+
+.meta-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--slate-400);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
+.meta-val {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.meta-val.monospace {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--primary-700);
+}
+
+.risk-badge-large {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.risk-badge-large.emergency {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  animation: pulseEmergency 1.8s infinite ease-in-out;
+}
+
+@keyframes pulseEmergency {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+}
+
+.risk-badge-large.high {
+  background: #ffe4e6;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+.risk-badge-large.moderate {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.risk-badge-large.low {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.risk-badge-large.unknown {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Individual Sheet Section Cards */
+.sheet-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.sheet-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: #fafafa;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sheet-card-header svg {
+  width: 15px;
+  height: 15px;
+  color: var(--primary-600);
+}
+
+.sheet-card-header h4 {
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  margin: 0;
+}
+
+.sheet-card-body {
+  padding: 0.85rem 1rem;
+}
+
+/* Chief Complaint Box */
+.chief-complaint-box {
+  background: var(--primary-50);
+  border-left: 3px solid var(--primary-600);
+  padding: 0.65rem 0.85rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.75rem;
+}
+
+.cc-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-800);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}
+
+.cc-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--primary-900);
+  line-height: 1.35;
+}
+
+/* 2-Column Metric Pills */
+.sheet-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.metric-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: var(--slate-50);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--slate-200);
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--slate-500);
+}
+
+.metric-value {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+/* Findings & Checklists */
+.sheet-findings-list,
+.sheet-doctor-list,
+.sheet-care-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sheet-findings-list li,
+.sheet-doctor-list li,
+.sheet-care-list li {
+  font-size: 0.82rem;
+  color: var(--slate-700);
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.sheet-findings-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0.25rem;
+  color: var(--primary-500);
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.sheet-doctor-list li::before {
+  content: '❓';
+  position: absolute;
+  left: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.sheet-care-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0.15rem;
+  color: var(--teal-600);
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+/* Red Flag Status Alert */
+.safe-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--emerald-600);
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--teal-50);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--teal-100);
+}
+
+.safe-indicator svg {
+  width: 16px;
+  height: 16px;
+}
+
+.danger-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid #fecaca;
+}
+
+.danger-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.danger-title-row svg {
+  width: 16px;
+  height: 16px;
+}
+
+.danger-items-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+
+/* Educational Seal */
+.sheet-disclaimer-seal {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: #f8fafc;
+  border: 1px dashed var(--slate-300);
+  border-radius: var(--radius-sm);
+  color: var(--slate-500);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.sheet-disclaimer-seal svg {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  color: var(--slate-400);
+  margin-top: 0.1rem;
+}
+
+/* ==============================================================================
+   Mobile View Mode Tabs Switcher
+   ============================================================================== */
+
+.mobile-view-tabs {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--slate-100);
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+}
+
+.mobile-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  background: transparent;
+  color: var(--slate-600);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobile-tab-btn.active {
+  background: #ffffff;
+  color: var(--primary-600);
+  box-shadow: var(--shadow-xs);
+}
+
+.mobile-tab-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ==============================================================================
+   Responsive & Print Layout
+   ============================================================================== */
+
+@media (max-width: 1024px) {
+  .workspace-dual-pane {
+    flex-direction: row;
+  }
+  .pane-chat {
+    flex: 1.1;
+  }
+  .pane-notepad {
+    flex: 0.9;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-view-tabs {
+    display: flex;
+  }
+
+  .workspace-dual-pane {
+    position: relative;
+  }
+
+  .pane-chat,
+  .pane-notepad {
+    flex: 1;
+    width: 100%;
+  }
+
+  /* In mobile view, toggle display based on active tab */
+  .workspace-dual-pane.view-notepad .pane-chat {
+    display: none;
+  }
+  .workspace-dual-pane.view-chat .pane-notepad {
+    display: none;
+  }
+
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    transform: translateX(-100%);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform var(--transition-normal), opacity var(--transition-normal), visibility var(--transition-normal);
+  }
+
+  .sidebar-header,
+  .sidebar-action,
+  .sidebar-history,
+  .sidebar-user {
+    width: 300px;
+    min-width: 300px;
+  }
+
+  .app-layout.sidebar-mobile-open .app-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .app-layout.sidebar-mobile-open .sidebar-backdrop {
+    display: block;
+  }
+
+  .close-sidebar-btn {
+    display: flex;
+  }
+}
+
+/* Print Stylesheet for Exporting Clinical Note */
+@media print {
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .app-sidebar,
+  .app-header,
+  .emergency-banner,
+  .pane-chat,
+  .notepad-header,
+  .sidebar-backdrop,
+  .modal-overlay,
+  .error-toast {
+    display: none !important;
+  }
+
+  .workspace-dual-pane {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pane-notepad {
+    flex: 1;
+    height: auto;
+    background: #ffffff;
+    overflow: visible;
+  }
+
+  .notepad-body {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .clinical-sheet {
+    display: flex !important;
+    gap: 1rem;
+  }
+
+  .sheet-card,
+  .sheet-meta-card {
+    border: 1px solid #cccccc;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
 }

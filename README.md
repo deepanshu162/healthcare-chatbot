@@ -1,13 +1,13 @@
-# HealthAI v0.2 — Intelligent Follow-Up Assessment
+# HealthAI v0.3 — Intelligent Follow-Up Assessment & MongoDB Persistence
 
-> **Milestone 2 Deliverable — College Minor Project**  
-> An AI-powered healthcare guidance and symptom assessment chatbot featuring intelligent follow-up questions, multi-turn conversation context, structured AI responses, and emergency prioritization.
+> **Milestone 3 Deliverable — College Minor Project**  
+> An AI-powered healthcare guidance and symptom assessment platform featuring MongoDB cloud persistence, JWT user authentication, intelligent MCQ follow-up questions, multi-turn conversation memory, structured AI responses, and emergency prioritization.
 
 ---
 
 ## 📌 Project Overview
 
-**HealthAI** is an AI-powered healthcare guidance and symptom assessment assistant. It is designed to evaluate user health inquiries interactively, recognize when essential clinical details are missing, and ask 3–5 targeted follow-up questions before providing evidence-based healthcare information.
+**HealthAI** is an AI-powered healthcare guidance and symptom assessment assistant. It evaluates user health inquiries interactively, recognizes when essential clinical details are missing, asks 3–5 targeted follow-up questions with multiple-choice answers, and securely saves assessment histories to **MongoDB** across devices.
 
 > [!IMPORTANT]
 > **HealthAI Role & Scope**:  
@@ -15,14 +15,14 @@
 
 ---
 
-## 🚀 What's New in v0.2
+## 🚀 What's New in v0.3
 
-1. 🧠 **Intelligent Follow-Up Questions**: Automatically detects when user input lacks critical information (duration, location, severity 1–10, associated symptoms, triggers) and asks 3–5 targeted follow-up questions.
-2. 💬 **Multi-Turn Conversation Context**: Retains session history in memory so users can answer questions naturally (e.g., referring to "it") without repeating themselves.
-3. 📋 **Structured JSON AI Responses**: Guarantees predictable outputs using Pydantic v2 schemas (`response_type`, `message`, `questions`, `risk_hint`).
-4. 🚨 **Emergency Prioritization**: Immediately detects red-flag symptoms and provides concise emergency guidance without asking unnecessary follow-up questions.
-5. 🛡️ **Prevents Repeated Questions**: Remembers information the user has already provided in previous turns and stops questioning once sufficient details are gathered.
-6. 🗄️ **Temporary In-Memory Storage**: Context is stored in memory via `ConversationService` (designed to be replaced with **MongoDB** in Milestone 3).
+1. 🗄️ **Persistent MongoDB Storage**: Full database integration with `motor` (async driver) and `pymongo`, compatible with **MongoDB Atlas** (cloud) and local MongoDB.
+2. 👤 **JWT User Authentication**: Secure registration, login, bcrypt password hashing, and user profile management (`/api/auth/register`, `/api/auth/login`, `/api/auth/me`).
+3. 📜 **Assessment History Sidebar**: Collapsible history drawer with real-time session listing, risk severity badges (Emergency / High / Moderate / Low), "+ New Assessment" action, and conversation deletion.
+4. 🧠 **Intelligent Follow-Up Questions**: Automatically detects when user input lacks critical details and presents 3–5 targeted MCQ answer options.
+5. 💬 **Multi-Turn Context Retention**: Retains session history in MongoDB collections (`conversations`, `messages`) so users can continue previous assessments anytime.
+6. 🚨 **Emergency Prioritization**: Immediately detects red-flag symptoms and provides urgent medical safety instructions without asking unnecessary questions.
 
 ---
 
@@ -32,124 +32,68 @@
 HealthAI/
 ├── backend/
 │   ├── __init__.py                 # Backend package initializer
-│   ├── main.py                     # FastAPI application entry point, CORS, static mounting
-│   ├── config.py                   # Environment settings & dynamic reload (GEMINI_API_KEY, GEMINI_MODEL)
+│   ├── main.py                     # FastAPI application entry point, CORS, lifespan
+│   ├── config.py                   # Environment settings (Gemini, MongoDB, JWT)
+│   │
+│   ├── db/
+│   │   ├── __init__.py             # DB package initializer
+│   │   └── mongodb.py              # Async MongoDB client lifecycle, ping & index setup
 │   │
 │   ├── models/
 │   │   ├── __init__.py             # Models package initializer
-│   │   └── chat_models.py          # Pydantic v2 schemas (ChatRequest, ChatResponse, StructuredAiOutput)
+│   │   ├── chat_models.py          # Chat request/response schemas (Pydantic v2)
+│   │   ├── user_models.py          # User auth schemas (Register, Login, Token, UserResponse)
+│   │   └── conversation_models.py  # Conversation history schemas (Summary, Detail, Messages)
 │   │
 │   ├── routes/
 │   │   ├── __init__.py             # Routes package initializer
-│   │   └── chat.py                 # POST /api/chat route with conversation_id support
+│   │   ├── chat.py                 # POST /api/chat with persistence & optional user auth
+│   │   ├── auth.py                 # POST /api/auth/register, /login, GET /me
+│   │   └── conversations.py        # GET /api/conversations, GET/DELETE /api/conversations/{id}
 │   │
 │   ├── services/
 │   │   ├── __init__.py             # Services package initializer
-│   │   ├── gemini_service.py       # Structured Gemini API client wrapper with fallback
-│   │   └── conversation_service.py # In-memory session manager with sliding window buffer
+│   │   ├── auth_service.py         # Password hashing, JWT token creation/verification
+│   │   ├── conversation_service.py # MongoDB session manager with sliding window cache
+│   │   └── gemini_service.py       # Structured Gemini API client wrapper with fallback
 │   │
 │   └── prompts/
 │       ├── __init__.py             # Prompts package initializer
-│       └── system_prompt.py        # Safety-focused healthcare system prompt & JSON schema rules
+│       └── system_prompt.py        # Healthcare safety system prompt & JSON schema rules
 │
 ├── frontend/
-│   ├── index.html                  # Healthcare chatbot web interface with follow-up UI
-│   ├── style.css                   # Modern healthcare design system & responsive styling
-│   └── script.js                   # Chat UI logic, session tracking, follow-up rendering, markdown
+│   ├── index.html                  # Web app layout with History Sidebar & Auth Modal
+│   ├── style.css                   # Healthcare design system, sidebar drawer & responsive styling
+│   └── script.js                   # Frontend logic: Auth tokens, chat, MCQ rendering, sidebar
 │
 ├── .env                            # Environment variables (excluded from git)
 ├── .env.example                    # Template for environment configuration
 ├── .gitignore                      # Git ignore rules (.env, __pycache__, virtualenvs)
 ├── requirements.txt                # Python package dependencies
+├── vercel.json                     # Vercel deployment configuration
 └── README.md                       # Project documentation
 ```
 
 ---
 
-## 🔄 Intelligent Assessment Workflow
+## 📡 API Specification
 
-```
-User Message
-     │
-     ▼
-Safety Check
-     │
-     ├─────────────── Red Flag ───────────────┐
-     │                                        │
-     ▼                                        ▼
-No immediate red flag                 Emergency Guidance
-     │                             (No follow-up questions)
-     ▼
-Information Sufficiency Check
-     │
-     ├───────────────┬───────────────┐
-     │               │               │
-     ▼               ▼               ▼
-Need info        Enough info     Unclear
-     │               │               │
-     ▼               ▼               ▼
-Follow-up        General         Ask targeted
-questions        guidance        clarification
-(max 5)          (questions=[])  
-     │
-     ▼
-User answers in chat
-     │
-     ▼
-Context retained in session (conv_...)
-     │
-     ▼
-Re-evaluate & provide guidance
-```
+### Authentication Endpoints
+- `POST /api/auth/register`: Register user with name, email, and password.
+- `POST /api/auth/login`: Authenticate user and receive JWT bearer token.
+- `GET /api/auth/me`: Get current user profile (requires `Authorization: Bearer <token>`).
 
----
+### Conversation Endpoints
+- `GET /api/conversations`: List all conversation summaries for current user.
+- `GET /api/conversations/{conversation_id}`: Retrieve all messages, MCQ options, and risk triage records.
+- `DELETE /api/conversations/{conversation_id}`: Delete a specific assessment session.
+- `DELETE /api/conversations`: Clear all sessions for authenticated user.
 
-## 📡 API Specification (`POST /api/chat`)
-
-### 1. Request Format
+### Chat Endpoint (`POST /api/chat`)
 ```json
 {
   "message": "I have stomach pain.",
   "conversation_id": "conv_a1b2c3d4e5f6"
-}
-```
-*(If `conversation_id` is omitted, the backend generates a new session ID.)*
-
-### 2. Follow-Up Response (`response_type: "follow_up"`)
-```json
-{
-  "conversation_id": "conv_a1b2c3d4e5f6",
-  "response_type": "follow_up",
-  "message": "I'd like to understand your symptoms a little better to provide helpful information.",
-  "questions": [
-    "Where in your stomach is the pain located (e.g. upper, lower right)?",
-    "When did the pain start and did it come on suddenly?",
-    "How severe is it on a scale from 1 to 10?",
-    "Do you have fever, nausea, vomiting, or changes in bowel habits?"
-  ],
-  "risk_hint": "unknown"
-}
-```
-
-### 3. General Guidance Response (`response_type: "guidance"`)
-```json
-{
-  "conversation_id": "conv_a1b2c3d4e5f6",
-  "response_type": "guidance",
-  "message": "Based on the details you provided...",
-  "questions": [],
-  "risk_hint": "low"
-}
-```
-
-### 4. Emergency Response (`response_type: "emergency"`)
-```json
-{
-  "conversation_id": "conv_a1b2c3d4e5f6",
-  "response_type": "emergency",
-  "message": "These symptoms may indicate a medical emergency. Please contact your local emergency services or seek immediate urgent medical care.",
-  "questions": [],
-  "risk_hint": "emergency"
 }
 ```
 
@@ -158,8 +102,9 @@ Re-evaluate & provide guidance
 ## 🛠️ Installation & Execution
 
 ### 1. Prerequisites
-- Python 3.10 or higher installed
+- Python 3.10 or higher
 - Google Gemini API Key ([Google AI Studio](https://aistudio.google.com/))
+- MongoDB Atlas URI or Local MongoDB instance
 
 ### 2. Install Dependencies
 ```bash
@@ -167,12 +112,21 @@ pip install -r requirements.txt
 ```
 
 ### 3. Environment Configuration
-Ensure `.env` contains your Gemini API key:
+Create or update your `.env` file:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-3.6-flash
 HOST=127.0.0.1
 PORT=8000
+
+# MongoDB Configuration (Local or MongoDB Atlas)
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB_NAME=healthai
+
+# Authentication Secret
+JWT_SECRET_KEY=your_secure_random_jwt_secret_key
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
 ```
 
 ### 4. Run the Application
@@ -182,34 +136,15 @@ python -m uvicorn backend.main:app --reload
 
 ### 5. Access the Web App
 Open your browser and navigate to:
-- **Web App**: [http://127.0.0.1:8000/app/](http://127.0.0.1:8000/app/)
-- **Interactive Swagger Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **Backend Status Healthcheck**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Interactive Web App**: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html) (or open `frontend/index.html` directly)
+- **Interactive Swagger API Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Backend & Database Healthcheck**: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 
 ---
 
-## 🧪 Testing Scenarios
+## 🧪 Automated Testing
 
-Run the automated test suite covering all 7 milestone scenarios:
+Run the test suite verifying MongoDB persistence, authentication, and chat flows:
 ```bash
-python scratch/test_v02.py
+python scratch/test_db_and_auth.py
 ```
-
-| Scenario | Input | Expected Output |
-| :--- | :--- | :--- |
-| **Test 1: Insufficient Info** | `"I have a headache."` | `response_type: "follow_up"` with 3–5 targeted questions |
-| **Test 2: Sufficient Info Upfront** | Detailed headache description | `response_type: "guidance"` without follow-up questions |
-| **Test 3: Context Retention** | Turn 1: `"Headache"` $\rightarrow$ Turn 2: `"Mild 3/10 since yesterday"` | AI understands context and transitions to guidance |
-| **Test 4: Emergency Priority** | `"Sudden crushing chest pain & difficulty breathing"` | `response_type: "emergency"`, urgent care advice, 0 questions |
-| **Test 5: Avoid Repeated Questions** | User provides onset $\rightarrow$ AI never re-asks onset | Avoids redundant questioning |
-| **Test 6: Safe API Failure** | Simulated external API error | Returns `503` without exposing API keys or stack traces |
-| **Test 7: Empty Input Validation** | Empty or whitespace string | Backend rejects with `422 Unprocessable Entity` |
-
----
-
-## 🔮 Future Milestone Roadmap (Milestone 3)
-
-The architecture is prepared for next-stage enhancements:
-- 🗄️ **Persistent Database**: Replace `ConversationService` in-memory dictionary with **MongoDB** collections for persistent chat history across sessions.
-- 👤 **User Authentication & Profiles**: JWT-based login with optional user health profiles (allergies, chronic conditions).
-- 📊 **ML Risk Triage Classifier**: Machine learning classification pipeline for automated severity scoring before LLM generation.

@@ -34,6 +34,32 @@ class Settings:
         except ValueError:
             return 8000
 
+    @property
+    def MONGODB_URI(self) -> str:
+        load_dotenv(dotenv_path=ENV_PATH, override=True)
+        return os.getenv("MONGODB_URI", "mongodb://localhost:27017").strip()
+
+    @property
+    def MONGODB_DB_NAME(self) -> str:
+        load_dotenv(dotenv_path=ENV_PATH, override=True)
+        return os.getenv("MONGODB_DB_NAME", "healthai").strip()
+
+    @property
+    def JWT_SECRET_KEY(self) -> str:
+        load_dotenv(dotenv_path=ENV_PATH, override=True)
+        return os.getenv("JWT_SECRET_KEY", "healthai-super-secret-jwt-key-change-in-production-2026").strip()
+
+    @property
+    def JWT_ALGORITHM(self) -> str:
+        return os.getenv("JWT_ALGORITHM", "HS256").strip()
+
+    @property
+    def ACCESS_TOKEN_EXPIRE_MINUTES(self) -> int:
+        try:
+            return int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440").strip())
+        except ValueError:
+            return 1440
+
     def is_gemini_configured(self) -> bool:
         """Check whether a valid Gemini API key is configured."""
         key = self.GEMINI_API_KEY

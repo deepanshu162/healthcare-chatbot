@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabViewNotepad = document.getElementById('tabViewNotepad');
 
   // Clinical Notepad Elements
+  const notepadBody = document.getElementById('notepadBody');
   const notepadSyncPill = document.getElementById('notepadSyncPill');
   const notepadSyncStatus = document.getElementById('notepadSyncStatus');
   const copyNoteBtn = document.getElementById('copyNoteBtn');
@@ -290,6 +291,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return result.join('\n');
   };
 
+  // --- Utility: Escape HTML ---
+  const escapeHtml = (str) => {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
   const scrollToBottom = () => {
     setTimeout(() => {
       chatMain.scrollTop = chatMain.scrollHeight;
@@ -306,6 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const hideErrorToast = () => {
     if (errorToast) errorToast.style.display = 'none';
   };
+
+  // Alias for prescription feature
+  const showToast = (msg) => showErrorToast(msg);
 
   if (toastClose) {
     toastClose.addEventListener('click', hideErrorToast);
@@ -1235,7 +1250,457 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==============================================================================
+  // 3-PAGE WEBSITE NAVIGATION ROUTER
+  // ==============================================================================
+  const pageWelcome = document.getElementById('pageWelcome');
+  const pageSymptom = document.getElementById('pageSymptom');
+  const pagePrescription = document.getElementById('pagePrescription');
+
+  const launchSymptomBtn = document.getElementById('launchSymptomBtn');
+  const launchPrescriptionBtn = document.getElementById('launchPrescriptionBtn');
+  const backToWelcomeSymptom = document.getElementById('backToWelcomeSymptom');
+  const backToWelcomePrescription = document.getElementById('backToWelcomePrescription');
+  const homeBrandLogo = document.getElementById('homeBrandLogo');
+  const homeBrandTitle = document.getElementById('homeBrandTitle');
+  const welcomeOpenAuthBtn = document.getElementById('welcomeOpenAuthBtn');
+  const clearChatButtonSymptom = document.getElementById('clearChatButtonSymptom');
+
+  const showPage = (pageName) => {
+    // Hide all pages
+    if (pageWelcome) pageWelcome.style.display = 'none';
+    if (pageSymptom) pageSymptom.style.display = 'none';
+    if (pagePrescription) pagePrescription.style.display = 'none';
+
+    // Show target page
+    if (pageName === 'symptom') {
+      if (pageSymptom) pageSymptom.style.display = 'flex';
+      window.location.hash = '#symptom-assessment';
+    } else if (pageName === 'prescription') {
+      if (pagePrescription) pagePrescription.style.display = 'flex';
+      window.location.hash = '#prescription-explainer';
+    } else {
+      if (pageWelcome) pageWelcome.style.display = 'flex';
+      window.location.hash = '#welcome';
+    }
+
+    window.scrollTo(0, 0);
+  };
+
+  // Launch buttons on Welcome Page
+  if (launchSymptomBtn) {
+    launchSymptomBtn.addEventListener('click', () => showPage('symptom'));
+  }
+  if (launchPrescriptionBtn) {
+    launchPrescriptionBtn.addEventListener('click', () => showPage('prescription'));
+  }
+
+  // Back to Welcome Page buttons
+  if (backToWelcomeSymptom) {
+    backToWelcomeSymptom.addEventListener('click', () => showPage('welcome'));
+  }
+  if (backToWelcomePrescription) {
+    backToWelcomePrescription.addEventListener('click', () => showPage('welcome'));
+  }
+  if (homeBrandLogo) {
+    homeBrandLogo.addEventListener('click', () => showPage('welcome'));
+  }
+  if (homeBrandTitle) {
+    homeBrandTitle.addEventListener('click', () => showPage('welcome'));
+  }
+  if (welcomeOpenAuthBtn) {
+    welcomeOpenAuthBtn.addEventListener('click', () => openAuth(false));
+  }
+  if (clearChatButtonSymptom) {
+    clearChatButtonSymptom.addEventListener('click', startNewAssessment);
+  }
+
+  // Hash change router listener
+  const handleHashChange = () => {
+    const hash = window.location.hash;
+    if (hash === '#symptom-assessment') {
+      showPage('symptom');
+    } else if (hash === '#prescription-explainer') {
+      showPage('prescription');
+    } else {
+      showPage('welcome');
+    }
+  };
+
+  window.addEventListener('hashchange', handleHashChange);
+
+  // ==============================================================================
+  // PRESCRIPTION EXPLAINER FEATURE LOGIC
+  // ==============================================================================
+  const rxTrySampleBtn = document.getElementById('rxTrySampleBtn');
+  const rxUploadCard = document.getElementById('rxUploadCard');
+  const rxDropzone = document.getElementById('rxDropzone');
+  const rxFileInput = document.getElementById('rxFileInput');
+  const rxDropzoneContent = document.getElementById('rxDropzoneContent');
+  const rxBrowseBtn = document.getElementById('rxBrowseBtn');
+  const rxFilePreview = document.getElementById('rxFilePreview');
+  const rxPreviewThumb = document.getElementById('rxPreviewThumb');
+  const rxFileName = document.getElementById('rxFileName');
+  const rxFileSize = document.getElementById('rxFileSize');
+  const rxRemoveFileBtn = document.getElementById('rxRemoveFileBtn');
+  const rxNotesInput = document.getElementById('rxNotesInput');
+  const rxAnalyzeBtn = document.getElementById('rxAnalyzeBtn');
+  const rxLoadingState = document.getElementById('rxLoadingState');
+  const rxResultsDashboard = document.getElementById('rxResultsDashboard');
+
+  const rxAnalysisTime = document.getElementById('rxAnalysisTime');
+  const rxCopyBtn = document.getElementById('rxCopyBtn');
+  const rxPrintBtn = document.getElementById('rxPrintBtn');
+  const rxNewAnalysisBtn = document.getElementById('rxNewAnalysisBtn');
+
+  const sumProblem = document.getElementById('sumProblem');
+  const sumTests = document.getElementById('sumTests');
+  const sumMedicines = document.getElementById('sumMedicines');
+  const sumInstructions = document.getElementById('sumInstructions');
+
+  const rxDiagBadge = document.getElementById('rxDiagBadge');
+  const rxDiagProblem = document.getElementById('rxDiagProblem');
+  const rxDiagExplanation = document.getElementById('rxDiagExplanation');
+  const rxDiagNote = document.getElementById('rxDiagNote');
+
+  const rxTestsCount = document.getElementById('rxTestsCount');
+  const rxTestsGrid = document.getElementById('rxTestsGrid');
+
+  const rxMedsCount = document.getElementById('rxMedsCount');
+  const rxMedicinesGrid = document.getElementById('rxMedicinesGrid');
+
+  const rxInstructionsList = document.getElementById('rxInstructionsList');
+
+  const rxUnclearCard = document.getElementById('rxUnclearCard');
+  const rxUnclearCount = document.getElementById('rxUnclearCount');
+  const rxUnclearList = document.getElementById('rxUnclearList');
+
+  const rxDisclaimerText = document.getElementById('rxDisclaimerText');
+
+  let selectedPrescriptionFile = null;
+  let currentPrescriptionExplanation = null;
+
+
+  // File Upload Handlers
+  const handleFileSelect = (file) => {
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('File size exceeds maximum limit of 10MB.');
+      return;
+    }
+
+    selectedPrescriptionFile = file;
+    if (rxFileName) rxFileName.textContent = file.name;
+    if (rxFileSize) rxFileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      if (rxPreviewThumb) rxPreviewThumb.innerHTML = `<img src="${url}" alt="Prescription preview">`;
+    } else {
+      if (rxPreviewThumb) {
+        rxPreviewThumb.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>`;
+      }
+    }
+
+    if (rxDropzoneContent) rxDropzoneContent.style.display = 'none';
+    if (rxFilePreview) rxFilePreview.style.display = 'flex';
+    if (rxAnalyzeBtn) rxAnalyzeBtn.disabled = false;
+  };
+
+  const resetFileUpload = () => {
+    selectedPrescriptionFile = null;
+    if (rxFileInput) rxFileInput.value = '';
+    if (rxDropzoneContent) rxDropzoneContent.style.display = 'block';
+    if (rxFilePreview) rxFilePreview.style.display = 'none';
+    if (rxAnalyzeBtn) rxAnalyzeBtn.disabled = true;
+    if (rxNotesInput) rxNotesInput.value = '';
+  };
+
+  if (rxBrowseBtn) {
+    rxBrowseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (rxFileInput) rxFileInput.click();
+    });
+  }
+
+  if (rxDropzone) {
+    rxDropzone.addEventListener('click', () => {
+      if (!selectedPrescriptionFile && rxFileInput) rxFileInput.click();
+    });
+
+    rxDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      rxDropzone.classList.add('drag-over');
+    });
+
+    rxDropzone.addEventListener('dragleave', () => {
+      rxDropzone.classList.remove('drag-over');
+    });
+
+    rxDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      rxDropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  if (rxFileInput) {
+    rxFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+  }
+
+  if (rxRemoveFileBtn) {
+    rxRemoveFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetFileUpload();
+    });
+  }
+
+  // Render Prescription Analysis Results
+  const renderPrescriptionResults = (data) => {
+    currentPrescriptionExplanation = data;
+
+    if (rxAnalysisTime) {
+      rxAnalysisTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // 6. Simple Summary Card
+    if (data.summary) {
+      if (sumProblem) sumProblem.textContent = data.summary.problem_summary || 'N/A';
+      if (sumTests) sumTests.textContent = data.summary.tests_summary || 'None prescribed.';
+      if (sumMedicines) sumMedicines.textContent = data.summary.medicines_summary || 'N/A';
+      if (sumInstructions) sumInstructions.textContent = data.summary.instructions_summary || 'N/A';
+    }
+
+    // 1. Diagnosis Card
+    if (data.diagnosis) {
+      if (rxDiagProblem) rxDiagProblem.textContent = data.diagnosis.problem || 'No Medical Diagnosis Stated';
+      if (rxDiagExplanation) rxDiagExplanation.textContent = data.diagnosis.explanation || 'No diagnosis was written on this prescription.';
+      if (rxDiagNote) rxDiagNote.textContent = data.diagnosis.note || 'Diagnoses are only displayed when explicitly written on the prescription sheet.';
+
+      if (rxDiagBadge) {
+        if (data.diagnosis.is_present) {
+          rxDiagBadge.textContent = 'Stated on Prescription';
+          rxDiagBadge.className = 'presence-badge present';
+        } else {
+          rxDiagBadge.textContent = 'Not Written on Prescription';
+          rxDiagBadge.className = 'presence-badge absent';
+        }
+      }
+    }
+
+    // 2. Tests Card
+    const tests = data.tests || [];
+    if (rxTestsCount) rxTestsCount.textContent = `${tests.length} Test${tests.length === 1 ? '' : 's'}`;
+    if (rxTestsGrid) {
+      if (tests.length === 0) {
+        rxTestsGrid.innerHTML = '<div class="test-item-card"><p class="test-detail">No diagnostic or laboratory tests mentioned on this prescription.</p></div>';
+      } else {
+        rxTestsGrid.innerHTML = tests.map(t => `
+          <div class="test-item-card">
+            <h4>${escapeHtml(t.test_name)}</h4>
+            <p class="test-detail"><strong>What it is:</strong> ${escapeHtml(t.what_it_is)}</p>
+            <p class="test-detail"><strong>What it checks:</strong> ${escapeHtml(t.what_it_checks)}</p>
+            <p class="test-detail"><strong>Why recommended:</strong> ${escapeHtml(t.why_recommended)}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 3. Medicines Card
+    const meds = data.medicines || [];
+    if (rxMedsCount) rxMedsCount.textContent = `${meds.length} Medicine${meds.length === 1 ? '' : 's'}`;
+    if (rxMedicinesGrid) {
+      if (meds.length === 0) {
+        rxMedicinesGrid.innerHTML = '<div class="medicine-item-card"><p>No medications listed on prescription.</p></div>';
+      } else {
+        rxMedicinesGrid.innerHTML = meds.map((m, idx) => `
+          <div class="medicine-item-card">
+            <div class="med-header">
+              <div class="med-title-group">
+                <span class="med-name">${idx + 1}. ${escapeHtml(m.medicine_name)}</span>
+              </div>
+              <span class="meta-pill ${m.is_clear ? 'abbrev-pill' : 'timing-pill'}">${m.is_clear ? '✓ Legible' : '⚠️ Handwriting Unclear'}</span>
+            </div>
+            
+            <div class="use-box">
+              <strong>General Use:</strong> ${escapeHtml(m.general_use)}
+            </div>
+
+            <div class="med-meta-pills">
+              <span class="meta-pill"><strong>Dose:</strong> ${escapeHtml(m.strength_dosage)}</span>
+              <span class="meta-pill abbrev-pill" title="Frequency & Abbreviation Breakdown">
+                <strong>Schedule (${escapeHtml(m.frequency)}):</strong> ${escapeHtml(m.abbreviation_explained)}
+              </span>
+              <span class="meta-pill timing-pill"><strong>Food Timing:</strong> ${escapeHtml(m.timing_food)}</span>
+              <span class="meta-pill"><strong>Duration:</strong> ${escapeHtml(m.duration)}</span>
+            </div>
+
+            ${m.other_instructions ? `<p class="test-detail"><strong>Doctor Notes:</strong> ${escapeHtml(m.other_instructions)}</p>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // 4. Doctor Instructions Card
+    const instructions = data.doctors_instructions || [];
+    if (rxInstructionsList) {
+      if (instructions.length === 0) {
+        rxInstructionsList.innerHTML = '<li>No additional special instructions written on prescription.</li>';
+      } else {
+        rxInstructionsList.innerHTML = instructions.map(inst => `
+          <li><span>${escapeHtml(inst)}</span></li>
+        `).join('');
+      }
+    }
+
+    // 5. Unclear Information & Verification Alerts
+    const unclear = data.unclear_items || [];
+    if (rxUnclearCount) rxUnclearCount.textContent = `${unclear.length} Alert${unclear.length === 1 ? '' : 's'}`;
+    if (rxUnclearCard && rxUnclearList) {
+      if (unclear.length === 0) {
+        rxUnclearList.innerHTML = '<div class="unclear-item-box" style="border-left-color: var(--emerald-500);"><span class="unclear-cat" style="color: var(--emerald-600);">✓ Legibility Check Passed</span><p class="unclear-reason">All medicine names, dosages, and instructions written on this prescription appear legible.</p></div>';
+      } else {
+        rxUnclearList.innerHTML = unclear.map(u => `
+          <div class="unclear-item-box">
+            <span class="unclear-cat">⚠️ Unclear Detail: ${escapeHtml(u.category)}</span>
+            <div class="unclear-text">${escapeHtml(u.item_text)}</div>
+            <p class="unclear-reason"><strong>Reason:</strong> ${escapeHtml(u.reason)}</p>
+            <p class="unclear-advice">👉 ${escapeHtml(u.action_advice)}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Safety Disclaimer
+    if (rxDisclaimerText && data.safety_disclaimer) {
+      rxDisclaimerText.textContent = data.safety_disclaimer;
+    }
+
+    // Show Results Dashboard
+    if (rxLoadingState) rxLoadingState.style.display = 'none';
+    if (rxUploadCard) rxUploadCard.style.display = 'none';
+    if (rxResultsDashboard) rxResultsDashboard.style.display = 'flex';
+  };
+
+  // Submit Prescription Upload Action
+  if (rxAnalyzeBtn) {
+    rxAnalyzeBtn.addEventListener('click', async () => {
+      if (!selectedPrescriptionFile) return;
+
+      const formData = new FormData();
+      formData.append('file', selectedPrescriptionFile);
+      if (rxNotesInput && rxNotesInput.value.trim()) {
+        formData.append('notes', rxNotesInput.value.trim());
+      }
+
+      if (rxUploadCard) rxUploadCard.style.display = 'none';
+      if (rxResultsDashboard) rxResultsDashboard.style.display = 'none';
+      if (rxLoadingState) rxLoadingState.style.display = 'flex';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/prescription/explain`, {
+          method: 'POST',
+          headers: {
+            'Authorization': getAuthToken() ? `Bearer ${getAuthToken()}` : ''
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || 'Failed to process prescription document.');
+        }
+
+        const data = await response.json();
+        renderPrescriptionResults(data);
+
+      } catch (err) {
+        showToast(err.message || 'Error analyzing prescription.');
+        if (rxLoadingState) rxLoadingState.style.display = 'none';
+        if (rxUploadCard) rxUploadCard.style.display = 'flex';
+      }
+    });
+  }
+
+  // Try Sample Prescription Button
+  if (rxTrySampleBtn) {
+    rxTrySampleBtn.addEventListener('click', async () => {
+      showPage('prescription');
+
+      if (rxUploadCard) rxUploadCard.style.display = 'none';
+      if (rxResultsDashboard) rxResultsDashboard.style.display = 'none';
+      if (rxLoadingState) rxLoadingState.style.display = 'flex';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/prescription/sample`);
+        if (!response.ok) throw new Error('Could not load sample prescription.');
+        const data = await response.json();
+        setTimeout(() => {
+          renderPrescriptionResults(data);
+        }, 500);
+      } catch (err) {
+        showToast('Unable to load sample prescription.');
+        if (rxLoadingState) rxLoadingState.style.display = 'none';
+        if (rxUploadCard) rxUploadCard.style.display = 'flex';
+      }
+    });
+  }
+
+  // Action Bar Handlers: Copy, Print, New Analysis
+  if (rxNewAnalysisBtn) {
+    rxNewAnalysisBtn.addEventListener('click', () => {
+      resetFileUpload();
+      if (rxResultsDashboard) rxResultsDashboard.style.display = 'none';
+      if (rxUploadCard) rxUploadCard.style.display = 'flex';
+    });
+  }
+
+  if (rxCopyBtn) {
+    rxCopyBtn.addEventListener('click', () => {
+      if (!currentPrescriptionExplanation) return;
+      const d = currentPrescriptionExplanation;
+      let text = `=== PRESCRIPTION EXPLANATION SUMMARY ===\n\n`;
+      text += `Problem/Diagnosis: ${d.diagnosis.problem || 'Not Written'}\n${d.diagnosis.explanation}\n\n`;
+      text += `SUMMARY:\n- Problem: ${d.summary.problem_summary}\n- Tests: ${d.summary.tests_summary}\n- Medicines: ${d.summary.medicines_summary}\n- Instructions: ${d.summary.instructions_summary}\n\n`;
+      text += `MEDICINES:\n`;
+      (d.medicines || []).forEach((m, i) => {
+        text += `${i+1}. ${m.medicine_name} (${m.strength_dosage}) - ${m.frequency} [${m.abbreviation_explained}]\n   General Use: ${m.general_use}\n   Timing: ${m.timing_food} | Duration: ${m.duration}\n`;
+      });
+      if (d.unclear_items && d.unclear_items.length > 0) {
+        text += `\n⚠️ UNCLEAR ITEMS (CONFIRM WITH DOCTOR/PHARMACIST):\n`;
+        d.unclear_items.forEach(u => {
+          text += `- ${u.category}: "${u.item_text}" -> ${u.action_advice}\n`;
+        });
+      }
+      text += `\n${d.safety_disclaimer}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Prescription explanation copied to clipboard!');
+      }).catch(() => {
+        showToast('Failed to copy to clipboard.');
+      });
+    });
+  }
+
+  if (rxPrintBtn) {
+    rxPrintBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
   // Initialize Auth, History & Empty Notepad
   renderClinicalNotepad(null);
   verifyAuthSession();
 });
+

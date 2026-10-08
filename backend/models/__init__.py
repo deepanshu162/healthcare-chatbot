@@ -19,6 +19,14 @@ from backend.models.conversation_models import (
     ConversationDetail,
     ConversationListResponse,
 )
+from backend.models.prescription_models import (
+    DiagnosisInfo,
+    TestInfo,
+    MedicineInfo,
+    UnclearItem,
+    PrescriptionSummary,
+    PrescriptionExplanationOutput,
+)
 
 __all__ = [
     "ResponseType",
@@ -36,4 +44,11 @@ __all__ = [
     "ConversationSummary",
     "ConversationDetail",
     "ConversationListResponse",
+    "DiagnosisInfo",
+    "TestInfo",
+    "MedicineInfo",
+    "UnclearItem",
+    "PrescriptionSummary",
+    "PrescriptionExplanationOutput",
 ]
+

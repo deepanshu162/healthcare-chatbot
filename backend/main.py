@@ -8,6 +8,7 @@ from backend.db.mongodb import db_manager
 from backend.routes.chat import router as chat_router
 from backend.routes.auth import router as auth_router
 from backend.routes.conversations import router as conversations_router
+from backend.routes.prescription import router as prescription_router
 
 
 @asynccontextmanager
@@ -51,6 +52,7 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 app.include_router(chat_router)
 app.include_router(auth_router)
 app.include_router(conversations_router)
+app.include_router(prescription_router)
 
 
 # Mount static assets for frontend (CSS, JS)
